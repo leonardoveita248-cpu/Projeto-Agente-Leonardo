@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leonardo Veita | AI Food & Drink Concierge</title>
+  <meta name="description" content="Agente inteligente de IA no Azure que recomenda até 3 opções ideais de comida e bebida de acordo com seu orçamento, gosto e companhia.">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Markdown parser for agent responses -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-background">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-group">
+        <div class="brand-icon-wrapper">
+          <span class="brand-emoji">🍽️</span>
+          <span class="sparkle-badge">AI</span>
+        </div>
+        <div class="brand-info">
+          <div class="brand-title-row">
+            <h1>Leonardo Veita</h1>
+            <span class="status-badge" id="agentStatusBadge">
+              <span class="status-dot"></span>
+              <span id="agentStatusText">Azure AI Conectado</span>
+            </span>
+          </div>
+          <p class="brand-subtitle">Seu Concierge Gastronômico Inteligente na Nuvem Azure</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="session-info" id="sessionInfo" title="ID da Conversa no Azure">
+          <span class="session-label">Sessão:</span>
+          <span class="session-id" id="sessionIdDisplay">Nova</span>
+        </div>
+        <button class="btn-secondary" id="btnNewChat" title="Reiniciar conversa do zero">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+            <path d="M8 16H3v5"/>
+          </svg>
+          <span>Nova Conversa</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-layout">
+      <!-- Left Configurator Panel -->
+      <aside class="panel configurator-panel">
+        <div class="panel-header">
+          <div class="panel-icon">🎯</div>
+          <div>
+            <h2>Suas Preferências</h2>
+            <p>Ajuste os parâmetros para receber até 3 recomendações perfeitas</p>
+          </div>
+        </div>
+
+        <form id="recommendForm" class="configurator-form" onsubmit="return false;">
+          <!-- Budget Section -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="budgetInput">Orçamento Estimado</label>
+              <span class="budget-value-tag" id="budgetValueDisplay">R$ 50,00</span>
+            </div>
+            
+            <div class="budget-input-wrapper">
+              <span class="currency-symbol">R$</span>
+              <input type="number" id="budgetInput" min="5" max="2000" step="5" value="50" required placeholder="50">
+            </div>
+
+            <div class="quick-chips" id="budgetChips">
+              <button type="button" class="chip" data-budget="30">R$ 30</button>
+              <button type="button" class="chip active" data-budget="50">R$ 50</button>
+              <button type="button" class="chip" data-budget="80">R$ 80</button>
+              <button type="button" class="chip" data-budget="120">R$ 120</button>
+              <button type="button" class="chip" data-budget="200">R$ 200+</button>
+            </div>
+          </div>
+
+          <!-- Food/Drink Preference Section -->
+          <div class="form-group">
+            <label>O que você quer comer ou beber?</label>
+            <div class="preference-grid" id="prefGrid">
+              <button type="button" class="pref-card active" data-pref="Comida Japonesa / Sushi">
+                <span class="pref-emoji">🍣</span>
+                <span class="pref-text">Japonês</span>
+              </button>
+              <button type="button" class="pref-card" data-pref="Hambúrguer Artesanal e Batata">
+                <span class="pref-emoji">🍔</span>
+                <span class="pref-text">Hambúrguer</span>
+              </button>
+              <button type="button" class="pref-card" data-pref="Pizza Artesanal">
+                <span class="pref-emoji">🍕</span>
+                <span class="pref-text">Pizza</span>
+              </button>
+              <button type="button" class="pref-card" data-pref="Massa Italiana ou Risoto">
+                <span class="pref-emoji">🍝</span>
+                <span class="pref-text">Italiano</span>
+              </button>
+              <button type="button" class="pref-card" data-pref="Churrasco e Cortes Nobres">
+                <span class="pref-emoji">🥩</span>
+                <span class="pref-text">Carnes</span>
+              </button>
+              <button type="button" class="pref-card" data-pref="Comida Saudável, Bowl ou Salada">
+                <span class="pref-emoji">🥗</span>
+                <span class="pref-text">Saudável</span>
+              </button>
+              <button type="button" class="pref-card" data-pref="Café Especial, Doces e Sobremesas">
+                <span class="pref-emoji">☕</span>
+                <span class="pref-text">Café & Doces</span>
+              </button>
+              <button type="button" class="pref-card" data-pref="Cervejas Artesanais e Petiscos">
+                <span class="pref-emoji">🍺</span>
+                <span class="pref-text">Drinks & Bar</span>
+              </button>
+            </div>
+
+            <div class="custom-pref-input-box">
+              <input type="text" id="customPrefInput" placeholder="Ou digite outra preferência (ex: Tacos Mexicanos, Vegano, Açaí)...">
+            </div>
+          </div>
+
+          <!-- Party Size Section -->
+          <div class="form-group">
+            <label>Quantas pessoas?</label>
+            <div class="party-segmented" id="partySegmented">
+              <button type="button" class="seg-btn active" data-party="alone">
+                <span class="seg-icon">🙋‍♂️</span>
+                <span>Sozinho</span>
+              </button>
+              <button type="button" class="seg-btn" data-party="couple">
+                <span class="seg-icon">👫</span>
+                <span>Em dupla (2)</span>
+              </button>
+              <button type="button" class="seg-btn" data-party="group">
+                <span class="seg-icon">👥</span>
+                <span>Em grupo</span>
+              </button>
+            </div>
+
+            <div class="group-counter-row" id="groupCounterRow" style="display: none;">
+              <span class="counter-label">Total de pessoas:</span>
+              <div class="counter-controls">
+                <button type="button" class="counter-btn" id="btnMinusParty">-</button>
+                <span class="counter-num" id="partyNumDisplay">3</span>
+                <button type="button" class="counter-btn" id="btnPlusParty">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Section (Optional) -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="locationInput">Sua Região / Bairro <span class="optional-badge">(opcional)</span></label>
+              <button type="button" class="btn-text-link" id="btnAutoLocation">📍 Usar minha localização</button>
+            </div>
+            <div class="location-input-wrapper">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <input type="text" id="locationInput" placeholder="Ex: Av. Paulista, Pinheiros, Copacabana, Centro...">
+            </div>
+            <span class="input-tip">Ajuda o agente a já sugerir lugares exatos próximos a você!</span>
+          </div>
+
+          <!-- Action Button -->
+          <button type="submit" class="btn-primary" id="btnSubmitRecommend">
+            <span class="btn-text">Consultar Leonardo Veita</span>
+            <span class="btn-emoji">✨</span>
+          </button>
+        </form>
+      </aside>
+
+      <!-- Right Chat & Recommendation Stream -->
+      <section class="panel chat-panel">
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <div class="chat-avatar">
+              <span class="avatar-emoji">🤖</span>
+            </div>
+            <div>
+              <h3 class="chat-title">Atendimento Leonardo Veita</h3>
+              <p class="chat-status-text">Azure AI Assistant • Recomendações e Lugares Próximos</p>
+            </div>
+          </div>
+          <div class="chat-header-tags">
+            <span class="tag-pill">Até 3 Opções</span>
+            <span class="tag-pill">Lugares Próximos</span>
+          </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div class="chat-body" id="chatBody">
+          <!-- Welcome card -->
+          <div class="welcome-card" id="welcomeCard">
+            <div class="welcome-icon">👋</div>
+            <h3>Olá! Eu sou o Leonardo Veita.</h3>
+            <p>
+              Sou um assistente de IA conectado ao <strong>Azure AI Projects</strong>. 
+              Configure suas preferências ao lado ou converse comigo diretamente aqui embaixo.
+            </p>
+            <div class="welcome-features">
+              <div class="feature-item">
+                <span class="feat-icon">💰</span>
+                <span>Respeito estritamente seu <strong>orçamento</strong></span>
+              </div>
+              <div class="feature-item">
+                <span class="feat-icon">🍽️</span>
+                <span>Sugiro <strong>até 3 opções</strong> personalizadas</span>
+              </div>
+              <div class="feature-item">
+                <span class="feat-icon">📍</span>
+                <span>Indico <strong>lugares próximos</strong> para comprar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Quick Action Suggestions -->
+        <div class="quick-suggestions-bar" id="quickSuggestionsBar" style="display: none;">
+          <span class="suggestions-label">Sugestões rápidas:</span>
+          <div class="suggestions-chips" id="suggestionsContainer"></div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+          <div class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span class="typing-text">Leonardo Veita está consultando o Azure AI...</span>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form class="chat-input-bar" id="chatForm" onsubmit="return false;">
+          <input 
+            type="text" 
+            id="chatInput" 
+            placeholder="Digite uma mensagem ou resposta (ex: 'Sim, me recomende lugares próximos em São Paulo')..." 
+            autocomplete="off"
+          />
+          <button type="submit" class="btn-send" id="btnSendMessage" title="Enviar mensagem">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
